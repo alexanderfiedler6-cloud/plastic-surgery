@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plastic Surgery">
+<meta name="theme-color" content="#1d2433">
+<meta name="robots" content="noindex,nofollow">
+<title>Plastic Surgery</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#f4f5f8;--card:#fff;--ink:#1d2433;--mut:#667085;--line:#dfe3ea;--acc:#4f46e5;--bad:#b91c1c;--new:#15803d;--shadow:0 2px 10px rgba(16,24,40,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--card:#1a2130;--ink:#e8ecf3;--mut:#9aa4b5;--line:#2b3446;--acc:#818cf8;--bad:#f87171;--new:#4ade80;--shadow:none}}
+:root[data-theme="dark"]{--bg:#0f1420;--card:#1a2130;--ink:#e8ecf3;--mut:#9aa4b5;--line:#2b3446;--acc:#818cf8;--bad:#f87171;--new:#4ade80;--shadow:none}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:760px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+h1{font-size:28px;margin:8px 0 2px}.mut{color:var(--mut);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;box-shadow:var(--shadow)}
+input{width:100%;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+button{font:inherit;border:0;border-radius:12px;padding:13px 16px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer;touch-action:manipulation}
+button.sec{background:transparent;color:var(--acc);border:1px solid var(--line)}
+.stack>*+*{margin-top:10px}.hidden{display:none!important}.err{color:var(--bad);font-size:14px;min-height:20px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:14px}
+.tile{display:flex;flex-direction:column;gap:4px;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);font-weight:400}
+h2.gr{font-size:13px;text-transform:uppercase;letter-spacing:.06em;opacity:.65;margin:22px 0 0}
+.tile .ic{font-size:30px}.tile b{font-size:17px}.tile .mut{font-size:13px}
+.tile .neu{align-self:flex-start;background:var(--new);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:2px 8px}
+#viewer{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;z-index:5}
+#vbar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;border-bottom:1px solid var(--line);background:var(--card)}
+#vbar button{padding:8px 12px}#vtitle{font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#frame{flex:1;border:0;width:100%;background:#fff}
+#load{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+.bar{width:min(320px,80vw);height:8px;border-radius:8px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc)}
+footer{margin-top:24px}
+
+/* Sperren: neutrale Fläche, Inhalte bleiben im Hintergrund erhalten */
+#b-sperren{position:fixed;top:calc(env(safe-area-inset-top) + 8px);right:10px;z-index:50;padding:7px 12px;border-radius:10px;border:1px solid #888;background:#fff;color:#222;font:600 14px system-ui;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+#b-sperren[hidden],#sp-form[hidden]{display:none}
+dialog#sperre{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:#dcdcdc;color:#333}
+dialog#sperre::backdrop{background:#dcdcdc}
+#sp-form{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:min(360px,90vw)}
+#sp-form input{flex:1;min-width:0;font:16px system-ui;padding:10px;border:1px solid #aaa;border-radius:8px;background:#fff;color:#222}
+#sp-form button{font:600 15px system-ui;padding:10px 14px;border:0;border-radius:8px;background:#555;color:#fff;cursor:pointer}
+#sp-err{width:100%;text-align:center;font:13px system-ui;color:#a00;min-height:1em}
+@media print{#b-sperren{display:none!important}}
+#vbar{padding-right:120px}
+</style>
+</head>
+<body>
+<button id="b-sperren" type="button" hidden title="Bildschirm sperren (nichts wird gelöscht)">🔒 Sperren</button>
+<dialog id="sperre" aria-label="Gesperrt"><form id="sp-form" hidden><input id="sp-pw" type="password" autocomplete="current-password" placeholder="Passwort"><button>Entsperren</button><div id="sp-err"></div></form></dialog>
+
+<main>
+<section id="v-lock" class="stack">
+  <h1>🩺 Plastic Surgery</h1>
+  <p class="mut">Privater Lernbereich für Alex und Rouven. Zum Öffnen das Passwort eingeben.</p>
+  <div class="card stack">
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Passwort">
+    <button id="b-unlock">Öffnen</button>
+    <div class="err" id="lock-err"></div>
+  </div>
+</section>
+
+<section id="v-home" class="hidden">
+  <h1>🩺 Plastic Surgery</h1>
+  <div class="mut" id="stand"></div>
+  <div class="tiles" id="tiles"></div>
+  <footer class="mut stack">
+    <div>Tipp fürs iPhone: in Safari „Teilen“ → „Zum Home-Bildschirm“, dann ist es wie eine App. Neue Inhalte kommen automatisch, einfach neu öffnen.</div>
+    <div>Nur zum persönlichen Lernen. Enthält Zusammenfassungen und Abbildungen aus Lehrbüchern: bitte nicht weitergeben.</div>
+    <button class="sec" id="b-lock">Abmelden auf diesem Gerät</button>
+  </footer>
+</section>
+</main>
+
+<div id="viewer" class="hidden">
+  <div id="vbar"><button class="sec" id="b-back">← Übersicht</button><span id="vtitle"></span></div>
+  <div id="load"><div id="load-t">Lade …</div><div class="bar"><i id="load-bar"></i></div><div class="mut" id="load-s"></div></div>
+  <iframe id="frame" class="hidden" title="Inhalt" allow="clipboard-write; fullscreen"></iframe>
+</div>
+
+<script>
+"use strict";
+const MANIFEST = "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";
+const KDF_ITER = 250000;
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } },
+};
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+let M = null, blobUrl = null, current = null;
+
+async function openManifest(pw) {
+  const raw = b64(MANIFEST), salt = raw.slice(0, 16), iv = raw.slice(16, 28), ct = raw.slice(28);
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: KDF_ITER, hash: "SHA-256" }, base,
+    { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct)));
+}
+async function unlock(pw) {
+  pw = (pw || "").trim();
+  $("lock-err").textContent = ""; $("b-unlock").disabled = true; $("b-unlock").textContent = "Öffne …";
+  for (const t of [pw, pw.endsWith(".") ? pw.slice(0, -1) : pw + "."]) {
+    try { M = await openManifest(t); pw = t; break; } catch (e) { M = null; }
+  }
+  $("b-unlock").disabled = false; $("b-unlock").textContent = "Öffnen";
+  if (!M) { $("lock-err").textContent = "Passwort falsch."; store.del("hub.pw"); return; }
+  store.set("hub.pw", pw);
+  store.set("duell.pw", pw);  // das Duell entsperrt sich damit von selbst (gleiche Herkunft)
+  home();
+  const want = location.hash.slice(1);
+  if (want && M.apps.some(a => a.id === want)) openApp(want);
+}
+function home() {
+  $("b-sperren").hidden = false;
+  $("v-lock").classList.add("hidden"); $("v-home").classList.remove("hidden");
+  $("stand").textContent = "Stand " + new Date(M.built).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short" });
+  const seen = store.get("hub.seen", {}), wrap = $("tiles");
+  wrap.replaceChildren(); wrap.className = "";
+  const boxen = {};
+  for (const g of ["Station und Klinik", "Briefe", "Lernen"].concat(M.apps.map(a => a.gruppe || "Weitere"))) {
+    if (boxen[g] || !M.apps.some(a => (a.gruppe || "Weitere") === g)) continue;
+    const h = document.createElement("h2"); h.className = "gr"; h.textContent = g;
+    const d = document.createElement("div"); d.className = "tiles";
+    wrap.append(h, d); boxen[g] = d;
+  }
+  for (const a of M.apps) {
+    const box = boxen[a.gruppe || "Weitere"];
+    const t = document.createElement("button"); t.className = "tile";
+    const ic = document.createElement("span"); ic.className = "ic"; ic.textContent = a.icon;
+    const b = document.createElement("b"); b.textContent = a.title;
+    const d = document.createElement("span"); d.className = "mut"; d.textContent = a.desc;
+    const u = document.createElement("span"); u.className = "mut";
+    u.textContent = (a.size ? Math.round(a.size / 1048576 * 10) / 10 + " MB · " : "") + "aktualisiert " + new Date(a.updated).toLocaleDateString("de-DE");
+    t.append(ic, b, d, u);
+    if (seen[a.id] && seen[a.id] !== a.updated) { const n = document.createElement("span"); n.className = "neu"; n.textContent = "NEU"; t.prepend(n); }
+    t.onclick = () => openApp(a.id);
+    box.appendChild(t);
+  }
+}
+async function fetchProgress(url, onp) {
+  const r = await fetch(url, { cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const total = +r.headers.get("content-length") || 0, reader = r.body.getReader(), parts = [];
+  let got = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); got += value.length; onp(got, total); }
+  const out = new Uint8Array(got); let o = 0;
+  for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+async function openApp(id) {
+  const a = M.apps.find(x => x.id === id);
+  if (a.link) { if (/^https?:/.test(a.link)) window.open(a.link, "_blank", "noopener"); else location.href = a.link; return; }
+  current = id;
+  $("viewer").classList.remove("hidden"); $("frame").classList.add("hidden"); $("load").classList.remove("hidden");
+  $("vtitle").textContent = a.icon + " " + a.title; $("load-t").textContent = "Lade " + a.title + " …"; $("load-bar").style.width = "0";
+  history.replaceState(null, "", "#" + id);
+  try {
+    const buf = await fetchProgress(a.file + "?v=" + a.updated, (got, total) => {
+      const tot = total || a.size;
+      $("load-bar").style.width = Math.min(100, got / tot * 100) + "%";
+      $("load-s").textContent = (got / 1048576).toFixed(1) + " / " + (tot / 1048576).toFixed(1) + " MB";
+    });
+    $("load-t").textContent = "Entschlüssele …";
+    const key = await crypto.subtle.importKey("raw", b64(a.key), "AES-GCM", false, ["decrypt"]);
+    const gz = await crypto.subtle.decrypt({ name: "AES-GCM", iv: buf.slice(0, 12) }, key, buf.slice(12));
+    const html = await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"))).blob();
+    if (current !== id) return;
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+    blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+    $("frame").onload = () => linksUmleiten($("frame"));
+    $("frame").src = blobUrl + (a.anker ? "#" + a.anker : "");
+    $("load").classList.add("hidden"); $("frame").classList.remove("hidden");
+    const seen = store.get("hub.seen", {}); seen[id] = a.updated; store.set("hub.seen", seen);
+  } catch (e) {
+    $("load-t").textContent = "Konnte " + a.title + " nicht laden: " + e.message;
+  }
+}
+function linksUmleiten(fr) {
+  let doc; try { doc = fr.contentDocument; } catch (e) { return; }
+  if (!doc) return;
+  doc.addEventListener("click", e => {
+    const l = e.target.closest && e.target.closest("a[href]");
+    if (!l) return;
+    const h = l.getAttribute("href");
+    if (/^(#|https?:|blob:|data:|mailto:|javascript:)/i.test(h)) return;
+    e.preventDefault();
+    const [datei, anker] = h.split("#"), name = decodeURIComponent(datei.split("/").pop());
+    const ziel = M.apps.find(x => x.datei === name && (x.anker || "") === (anker || "")) || M.apps.find(x => x.datei === name);
+    if (ziel) openApp(ziel.id); else alert("Das gibt es nur lokal auf dem PC (" + name + ").");
+  }, true);
+}
+function closeApp() {
+  current = null; $("frame").src = "about:blank"; $("viewer").classList.add("hidden");
+  if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+  history.replaceState(null, "", location.pathname); home();
+}
+$("b-back").onclick = closeApp;
+$("b-unlock").onclick = () => unlock($("pw").value);
+$("pw").onkeydown = e => { if (e.key === "Enter") unlock($("pw").value); };
+$("b-lock").onclick = () => { store.del("hub.pw"); store.del("duell.pw"); location.reload(); };
+fetch(location.pathname + "?v=" + Date.now(), { cache: "no-store" }).then(r => r.text()).then(t => {
+  if (!t.includes(MANIFEST.slice(0, 80)) && !/[?&]v=/.test(location.search)) location.replace(location.pathname + "?v=" + Date.now() + location.hash);
+}).catch(() => { /* offline: alte Fassung behalten */ });
+const saved = store.get("hub.pw", null);
+if (saved) unlock(saved);
+</script>
+<script>
+window.sperrePruefen = async v => {
+  v = (v || "").trim();
+  for (const t of [v, v.endsWith(".") ? v.slice(0, -1) : v + "."]) {
+    try { await openManifest(t); store.set("hub.pw", t); return true; } catch (e) { /* nächste Variante */ }
+  }
+  return false;
+};
+window.nachSperren = () => store.del("hub.pw");
+</script>
+<script>
+// Sperren: graue Fläche über allem (auch über offenen Dialogen), ein Klick zeigt das Passwortfeld; nichts wird gelöscht
+(() => {
+  const d = document.getElementById("sperre"), f = document.getElementById("sp-form"), pw = document.getElementById("sp-pw"), err = document.getElementById("sp-err");
+  let titel = "";
+  window.sperren = () => {
+    if (d.open) return;
+    titel = document.title; document.title = "​";
+    f.hidden = true; err.textContent = ""; pw.value = "";
+    d.showModal();
+    if (window.nachSperren) window.nachSperren();
+  };
+  const frei = () => { document.title = titel; d.close(); };
+  d.addEventListener("cancel", e => e.preventDefault());
+  d.onclick = () => {
+    if (!f.hidden) return;
+    if (window.sperreOhnePasswort && window.sperreOhnePasswort()) { frei(); return; }
+    f.hidden = false; pw.focus();
+  };
+  f.onsubmit = async e => {
+    e.preventDefault(); err.textContent = "";
+    let ok = false;
+    try { ok = await window.sperrePruefen(pw.value); } catch (x) { ok = false; }
+    if (!ok) { err.textContent = "Passwort falsch."; pw.select(); return; }
+    frei();
+  };
+  const knopf = document.getElementById("b-sperren"), zeigen = HTMLDialogElement.prototype.showModal;
+  knopf.onclick = () => window.sperren();
+  if (window.top !== window) knopf.hidden = true;   // eingebettet (z. B. im Hub): dort gibt es schon einen Sperren-Knopf
+  // offene Dialoge machen den Rest der Seite unbedienbar: der Knopf wandert in den obersten Dialog mit
+  const zurueck = () => { const o = [...document.querySelectorAll("dialog[open]")].filter(x => x !== d).pop(); (o || document.body).append(knopf); };
+  HTMLDialogElement.prototype.showModal = function () {
+    zeigen.call(this);
+    if (this === d) return;
+    this.append(knopf);
+    const mo = new MutationObserver(() => { if (this.open && !this.contains(knopf)) this.append(knopf); });
+    mo.observe(this, { childList: true });
+    this.addEventListener("close", () => { mo.disconnect(); zurueck(); }, { once: true });
+  };
+})();
+</script>
+</body>
+</html>
